@@ -29,3 +29,13 @@ class FileError(Error):
 
     def __init__(self, message):
         self.message = message
+
+class DataError(Error):
+    """Exception raised due to data not being read properly.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message

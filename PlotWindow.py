@@ -34,6 +34,7 @@ import bplt
 import pplt
 import splt
 import DBDlplt as dlplt
+import nplt
 
 from ErrorClasses import NotImplementedError
 import warnings
@@ -328,14 +329,11 @@ def plotDLP(self, order=2, cutoff=0.05, tof=False, DBDplot=False):
 
 def plotNFP(self, order=2, cutoff=0.05, biasplt=False):
 
-    # Until working, throw NotImplemented error if biasplt == False
-    if biasplt == False:
-        raise NotImplementedError("NFP plotting not yet implemented")
-
     if biasplt == False:
         raw_nfp = nplt.get_data(self.fname)
         lowpass_nfp = nplt.butter_filter(raw_nfp, order, cutoff)
-        max_vals_nfp = biasplt.get_max_vals(lowpass_nfp)
+        avg_nfp = nplt.butter_avg(lowpass_nfp)
+        max_vals_nfp = nplt.get_max_vals(avg_nfp)
         Idensity = nplt.Idensity(max_vals_nfp)
         #plt.figure(figsize=(9, 5))
 
@@ -361,7 +359,8 @@ def plotNFP(self, order=2, cutoff=0.05, biasplt=False):
 
         plt.xlabel(r'Radial Position (cm)')
         plt.ylabel(r'$J$ $\left(\mathrm{A} \, \mathrm{m}^{-2}\right)$')
-        plt.title(r'Plasma Current Density at $V_{bias} = -30 \, V$')
+        plt.title(r'Plasma Current Density at $V_{bias} = ' 
+                + str(-30) + r' \, V$')
         plt.minorticks_on()
         plt.grid(which='major', alpha=0.5)
         plt.grid(which='minor', alpha=0.2)

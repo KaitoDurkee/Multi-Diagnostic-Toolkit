@@ -27,6 +27,7 @@ import rplt
 import lplt     # Import dependent libs for plotting
 import pplt
 import splt
+import nplt
 import PlotWindow
 
 class MainWindow(QDialog):
@@ -296,6 +297,7 @@ class MainWindow(QDialog):
         cutoff = float(self.cutflt.text())
         biasplt = int(self.bplt.isChecked())
 
+        PlotWindow.plotNFP(self, order, cutoff, biasplt)
         try:
             PlotWindow.plotNFP(self, order, cutoff, biasplt)
         except(AttributeError, NotADirectoryError):

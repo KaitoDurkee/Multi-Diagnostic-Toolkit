@@ -20,20 +20,24 @@ import re
 
 from PyQt5.QtWidgets import QCheckBox
 
+from ErrorClasses import DataError, FileError
+import warnings
+
 
 def get_radial_position(filename):
 
     # Pull out radial position from filename as a float.
-    position_match = re.search('[0-9]?[0-9][.]?[0-9]?[0-9]?[ -]?[ ]?cm',filename)
+    position_match = re.search(
+    	        '[-]?[0-9]?[0-9][ ]?cm',filename)
 
     if position_match == None:
         raise ValueError("Filename format is incorrect: %r" % filename)
 
-    position_string = bias_match.group()
+    position_string = position_match.group()
     position_string = "".join(position_string.split())
     position_string = position_string[:-2]
-    if position_string[-1] == '-':
-        position_string = position_string[:-1]
+    # if position_string[-1] == '-':
+    #     position_string = position_string[:-1]
 
     position = float(position_string)
 
@@ -46,7 +50,7 @@ def check_folders_in_directory(id_list):
         if folder[0] in id_list:
             flag = True
     if flag == False:
-        raise ValueError("No folders in directory are named correctly: " +
+        raise FileError("No folders in directory are named correctly: " +
                          "CHECK DIRECTORY")
 
 
@@ -60,17 +64,18 @@ def get_data(name):
     check_folders_in_directory(id_list)
 
     for id in id_list:
-        for folder in os.listdir():
-            if folder[0] == id:
+        for id_folder in os.listdir():
+            if id_folder[0] == id:
                 data[id] = {}
-                for position_file in os.listdir(folder):
-                    for shot_file in os.listdir(position_file):
+                for position_folder in os.listdir(id_folder):
+                    for shot_file in os.listdir(
+                    	        id_folder + '/' + position_folder):
                         position = get_radial_position(shot_file)
                         data[id][position] = {shot_file: np.ndfromtxt(
-                                folder + '/' + position_file +'/' +
+                                id_folder + '/' + position_folder +'/' +
                                 shot_file, delimiter='\t')}
     if data == {}:
-
+    	raise DataError("Data could not be read.")
     return data
 
 
@@ -83,7 +88,7 @@ def butter_filter(data, order, cutoff):
             buttered[id][position] = {}
             for shot_file in data[id][position]:
                 corrected = np.array(
-                    signal.sosfiltfilt(sos, data[positon][shot_file][:, 1]))
+                    signal.sosfiltfilt(sos, data[id][position][shot_file][:, 1]))
 
                 buttered[id][position][shot_file] = corrected
     return buttered
@@ -99,23 +104,23 @@ def butter_avg(buttered):
             avg[id][position] = {}
             for shot_file in buttered[id][position]:
                 length = len(buttered[id][position][shot_file])
-                average_vals = (np.sum(
-                        buttered[id][position][shot_file], axis=0) / length)
+            average_vals = (np.sum(
+                    buttered[id][position][shot_file], axis=0) / length)
 
-                avg[id][position] = average_vals
+            avg[id][position] = average_vals
 
     return avg
 
 def get_max_vals(avg):
+	max_vals = {}
 
-    max_vals = {}
-
-    for id in avg.keys():
-        max_vals[id] = {}
-        for position in avd[id]:
-            max = np.absolute(np.amin(avg[id][position]))
-            max_vals.[id][position] = max
-    return max_vals
+	for id in avg.keys():
+		max_vals[id] = {}
+		for position in avg[id]:
+				max_val_at_position = np.amax(
+					np.absolute(avg[id][position]))
+				max_vals[id][position] = max_val_at_position
+	return max_vals
 
 def Idensity(max_vals):
 
@@ -131,7 +136,7 @@ def Idensity(max_vals):
     for id in max_vals.keys():
         Idensity[id] = {}
         for position in max_vals[id]:
-            Idensity[id][position] = max_vals[position] / const
+            Idensity[id][position] = max_vals[id][position] / const
     return Idensity
 
 
