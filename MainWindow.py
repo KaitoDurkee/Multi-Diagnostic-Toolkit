@@ -28,6 +28,7 @@ import lplt     # Import dependent libs for plotting
 import pplt
 import splt
 import nplt
+import rlplt
 import PlotWindow
 
 class MainWindow(QDialog):
@@ -49,6 +50,7 @@ class MainWindow(QDialog):
                  'REFA',
                  'Nude Faraday',
                  'Input Power',
+                 'Radial Langmuir Profile',
                  'Single Dataset']
 
         self.choose = QComboBox(self)
@@ -141,6 +143,9 @@ class MainWindow(QDialog):
             self.layoutPower()
 
         elif ind is 5:
+            self.layoutRDLP()
+
+        elif ind is 6:
 
             self.layoutSingle()
 
@@ -224,6 +229,21 @@ class MainWindow(QDialog):
         self.plot.clicked.connect(self.pushNFP)
         self.browseButton.clicked.connect(lambda: self.getFiles('folder'))
 
+    def layoutRDLP(self):
+
+        default_dir = os.getcwd()+'/RDLP'
+
+        self.layout.addWidget(self.export, 0, 0)
+        self.layout.addWidget(QLabel('Filter Order:'), 0, 1)
+        self.layout.addWidget(self.orderflt, 0, 2)
+        self.layout.addWidget(QLabel('Cutoff Freq.:'), 1, 1)
+        self.layout.addWidget(self.cutflt, 1, 2)
+        self.dirLoc.setText(default_dir)
+        self.layout.addItem(self.verticalSpacer)
+
+        self.plot.clicked.connect(self.pushRDLP)
+        self.browseButton.clicked.connect(lambda: self.getFiles('folder'))
+
     def layoutPower(self):
 
         default_dir = os.getcwd()+'/DLP'
@@ -297,11 +317,21 @@ class MainWindow(QDialog):
         cutoff = float(self.cutflt.text())
         biasplt = int(self.bplt.isChecked())
 
-        PlotWindow.plotNFP(self, order, cutoff, biasplt)
         try:
             PlotWindow.plotNFP(self, order, cutoff, biasplt)
         except(AttributeError, NotADirectoryError):
             print(self.errortxt)
+
+    def pushRDLP(self):
+
+        order = int(self.orderflt.text())
+        cutoff = float(self.cutflt.text())
+
+        PlotWindow.plotRDLP(self, order, cutoff)
+        # try:
+        #     PlotWindow.plotRDLP(self, order, cutoff)
+        # except(AttributeError, NotADirectoryError):
+        #     print(self.errortxt)
 
     def pushPower(self):
 

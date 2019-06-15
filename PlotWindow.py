@@ -35,6 +35,7 @@ import pplt
 import splt
 import DBDlplt as dlplt
 import nplt
+import rlplt
 
 from ErrorClasses import NotImplementedError
 import warnings
@@ -360,7 +361,7 @@ def plotNFP(self, order=2, cutoff=0.05, biasplt=False):
         plt.xlabel(r'Radial Position (cm)')
         plt.ylabel(r'$J$ $\left(\mathrm{A} \, \mathrm{m}^{-2}\right)$')
         plt.title(r'Plasma Current Density at $V_{bias} = ' 
-                + str(-30) + r' \, V$')
+                + r'-??' + r' \, V$')
         plt.minorticks_on()
         plt.grid(which='major', alpha=0.5)
         plt.grid(which='minor', alpha=0.2)
@@ -388,14 +389,48 @@ def plotNFP(self, order=2, cutoff=0.05, biasplt=False):
 
 
 
+def plotRDLP(self, order=2, cutoff=0.05):
+
+    raw_rdlp = rlplt.get_data(self.fname)
+    lowpass_rdlp = rlplt.butter_filter(raw_rdlp, order, cutoff)
+    avg_rdlp = rlplt.butter_avg(lowpass_rdlp)
+    max_vals_rdlp = rlplt.get_max_vals(avg_rdlp)
+    Idensity = rlplt.density(max_vals_rdlp)
+    #plt.figure(figsize=(9, 5))
+
+    # Setting prop cycle on default rc parameter
+    plt.rc('lines', linewidth=4)
+    plt.rc('axes', prop_cycle=(cycler('color', ['k', 'b', 'r', 'm'])))
+
+    ax, fig = plt.subplots()
+
+    for id in Idensity.keys():
+        if id == 'L':
+            id_label = 'Left'
+        elif id == 'R':
+            id_label = 'Right'
+        elif id == 'D':
+                id_label = 'Double'
+        elif id == 'T':
+            id_label = 'Triple'
+        else:
+            id_label = 'Other'
+        fig.plot(*zip(*sorted(Idensity[id].items())), 'o', label=id_label)
+        fig.legend(prop={'size': 7})
+
+    plt.xlabel(r'Radial Position (cm)')
+    plt.ylabel(r'$n_e$ $\left(\mathrm{m}^{-3}\right)$')
+    plt.title(r'Plasma Electron Density at $V_{bias} = ' 
+            + r'-??' + r' \, V$')
+    plt.minorticks_on()
+    plt.grid(which='major', alpha=0.5)
+    plt.grid(which='minor', alpha=0.2)
+    plt.show()
+
+
+
 def plotPower(self, energy=False):
     raw_data = pplt.get_data(self.fname, energy)
-    # lowpass_rpa = rplt.butter_filter(raw_rpa, order, cutoff)
-    # slice_rpa = rplt.time_slice(lowpass_rpa, tts)
-    # median_rpa = rplt.median_filter(slice_rpa, medWin)
-    # x, spl = rplt.spline_fit(median_rpa, smooth, splinePts, 'spline')
-    # x, y = rplt.ivdf(x, spl)
-
 
     time_ns = raw_data['time'] * 1e9
     voltage_V = raw_data['voltage']
