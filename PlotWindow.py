@@ -360,8 +360,8 @@ def plotNFP(self, order=2, cutoff=0.05, biasplt=False):
 
         plt.xlabel(r'Radial Position (cm)')
         plt.ylabel(r'$J$ $\left(\mathrm{A} \, \mathrm{m}^{-2}\right)$')
-        plt.title(r'Plasma Current Density at $V_{bias} = ' 
-                + r'-??' + r' \, V$')
+        plt.title(r'Plasma Current Density at $V_{bias} = '
+                + r'-30' + r' \, V$')
         plt.minorticks_on()
         plt.grid(which='major', alpha=0.5)
         plt.grid(which='minor', alpha=0.2)
@@ -420,8 +420,8 @@ def plotRDLP(self, order=2, cutoff=0.05):
 
     plt.xlabel(r'Radial Position (cm)')
     plt.ylabel(r'$n_e$ $\left(\mathrm{m}^{-3}\right)$')
-    plt.title(r'Plasma Electron Density at $V_{bias} = ' 
-            + r'-??' + r' \, V$')
+    plt.title(r'Plasma Electron Density at $V_{bias} = '
+            + r'-65' + r' \, V$')
     plt.minorticks_on()
     plt.grid(which='major', alpha=0.5)
     plt.grid(which='minor', alpha=0.2)
@@ -438,13 +438,13 @@ def plotPower(self, energy=False):
     current_A = raw_data['current']
     power_W = raw_data['power']
     power_kW = raw_data['power'] * 1e-3
-        
+
 
     plt.figure(figsize=(9, 5))
     plt.plot(time_ns, voltage_kV*1e1, 'b-')
     plt.plot(time_ns, current_A, 'g-')
     plt.plot(time_ns, power_kW, 'k-')
-    
+
     plt.title(r'Power Plot - ' + self.fname)
     plt.xlabel(r'Time (ns)')
 
